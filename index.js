@@ -7,7 +7,7 @@ var field = [];
 let i = 0, j=0, point;
 
 //TODO добавить окраску клетки по наведению удержанной мыши, чтобы можно было "красить"
-
+//с адаптивностью траблы
 
 /*EVENTS*/
 window.addEventListener('load', function() {
