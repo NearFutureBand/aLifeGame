@@ -1,5 +1,5 @@
 /*Количество клеток*/
-let N = 3,
+let N = 5,
 /*Размер клетки в пикселях*/
     cellSize,
 /**/
@@ -28,6 +28,7 @@ var dir = [];
 //вынести логику расчетов в отдельную функцию
 //dir превратить в обычный двумерный массив
 //баг - из-за зацикленного поля одного и того же соседа считает несколько раз
+//баг - последовательный проход по массиву клеток может изменять результат (?)
 
 /*EVENTS*/
 window.addEventListener('load', function() {
@@ -44,7 +45,6 @@ window.addEventListener('load', function() {
             field.push(point);
         }
     }
-    console.log(field);
     
     /*Инициализация массива направлений*/
     for (i = -1; i < 2; i++) {
@@ -116,7 +116,7 @@ var update = function() {
         /*цикл по всем направлениям*/
         });
         
-        console.log(living);
+        //console.log(living);
         if( cell.alive == 1 && ( living == 2 || living == 3) ||
             cell.alive == 0 && living == 3
         ) {
