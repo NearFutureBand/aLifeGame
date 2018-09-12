@@ -27,7 +27,6 @@ var dir = [];
 //вынести перерисовку в отдельную функцию
 //вынести логику расчетов в отдельную функцию
 //dir превратить в обычный двумерный массив
-//окраску/возрождение/смерть сделать единой функцией с полным контролем состояний
 
 /*EVENTS*/
 window.addEventListener('load', function() {
@@ -123,10 +122,10 @@ var update = function() {
             if( cell.alive == 1 && ( living == 2 || living == 3) ||
                 cell.alive == 0 && living == 3
             ) {
-                cell.alive = 1;
+                rise( coordToId(cell.coord[0], cell.coord[1]));
             } else {
-                cell.alive = 0;
-            }   
+                die( coordToId(cell.coord[0], cell.coord[1]));
+            }
         }
         
         

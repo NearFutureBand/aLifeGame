@@ -15,10 +15,15 @@ var setDynamicStyles = function() {
 /*Возродить - красит в активный цвет*/
 var rise = function(id) {
     field[id].alive = 1;
-    el.setAttribute('fill', activeColor);
+    document.getElementById(id).setAttribute('fill', activeColor);
 }
 
 /*Умереть - красит в стоковый цвет*/
 var die = function(id) {
-    el.setAttribute('fill', stockColor);
+    field[id].alive = 0;
+    document.getElementById(id).setAttribute('fill', stockColor);
+}
+
+var coordToId = function(i,j) {
+    return i * N + j;
 }
