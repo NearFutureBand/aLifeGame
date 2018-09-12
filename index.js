@@ -27,6 +27,7 @@ var dir = [];
 //вынести перерисовку в отдельную функцию
 //вынести логику расчетов в отдельную функцию
 //dir превратить в обычный двумерный массив
+//баг - из-за зацикленного поля одного и того же соседа считает несколько раз
 
 /*EVENTS*/
 window.addEventListener('load', function() {
@@ -98,36 +99,31 @@ var update = function() {
     
     /*Цикл по всем клеткам поля*/
     field.forEach( function(cell) {
-        living = 0;
         
-        /*Ненужное условие - убрать когда будет проверка на границы*/
-        if( cell.coord[0] > 0 && cell.coord[1] > 0 &&
-            cell.coord[0] < N - 1 && cell.coord[1] < N - 1
-        ) {
-            /*цикл по всем направлениям*/
-            dir.forEach( function(d) {
-                currentPoint = [0,0];
-                
-                /*Цикл по двум координатам*/
-                cell.coord.forEach( function(c, it) {
-                    currentPoint[it] = cell.coord[it] + d.coord[it];
-                });
-                
-                living += field[ currentPoint[0]*N + currentPoint[1] ].alive; 
-                
-            /*цикл по всем направлениям*/
+        living = 0;
+        /*цикл по всем направлениям*/
+        dir.forEach( function(d) {
+            currentPoint = [0,0];
+            
+            /*Цикл по двум координатам*/
+            cell.coord.forEach( function(c, it) {
+                currentPoint[it] = cell.coord[it] + d.coord[it];
             });
             
-            console.log(living);
-            if( cell.alive == 1 && ( living == 2 || living == 3) ||
-                cell.alive == 0 && living == 3
-            ) {
-                rise( coordToId(cell.coord[0], cell.coord[1]));
-            } else {
-                die( coordToId(cell.coord[0], cell.coord[1]));
-            }
-        }
+            currentPoint = [ checkCoord(currentPoint[0]), checkCoord(currentPoint[1]) ];
+            living += field[ currentPoint[0]*N + currentPoint[1] ].alive; 
+            
+        /*цикл по всем направлениям*/
+        });
         
+        console.log(living);
+        if( cell.alive == 1 && ( living == 2 || living == 3) ||
+            cell.alive == 0 && living == 3
+        ) {
+            rise( coordToId(cell.coord[0], cell.coord[1]));
+        } else {
+            die( coordToId(cell.coord[0], cell.coord[1]));
+        }
         
     /*Цикл по всем клеткам поля*/
     });   

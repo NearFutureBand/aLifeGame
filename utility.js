@@ -27,3 +27,13 @@ var die = function(id) {
 var coordToId = function(i,j) {
     return i * N + j;
 }
+
+/*Принимает одну координату*/
+var checkCoord = function( coord) {
+    //console.log(coord);
+    coord = (coord > -1)? coord : N - 2;
+    coord = (coord < N)? coord : 1;
+    //console.log(coord);
+    return coord;
+    
+}
