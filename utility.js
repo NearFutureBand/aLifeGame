@@ -13,11 +13,12 @@ var setDynamicStyles = function() {
 }
 
 /*Возродить - красит в активный цвет*/
-var rise = function(el) {
+var rise = function(id) {
+    field[id].alive = 1;
     el.setAttribute('fill', activeColor);
 }
 
 /*Умереть - красит в стоковый цвет*/
-var die = function(el) {
+var die = function(id) {
     el.setAttribute('fill', stockColor);
 }
