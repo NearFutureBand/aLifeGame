@@ -1,3 +1,4 @@
+
 var setDynamicStyles = function() {
     
     cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / N);
@@ -30,10 +31,13 @@ var coordToId = function(i,j) {
 
 /*Принимает одну координату*/
 var checkCoord = function( coord) {
-    //console.log(coord);
     coord = (coord > -1)? coord : N - 2;
     coord = (coord < N)? coord : 1;
-    //console.log(coord);
     return coord;
-    
+}
+
+var resetCheck = function() {
+    field.forEach( function(item) {
+        item.checked = false;  
+    });
 }
