@@ -52,6 +52,7 @@ var LifeGame = {
     createDOM: function() {
         let aCol = this.activeColor;
         let sCol = this.stockColor;
+        let obj = this;
         
         d3.select("#field")
             .on('mousedown', () => this.mousedown = true )
@@ -64,12 +65,7 @@ var LifeGame = {
                     .attr('id', (d, i) => i)
                     .attr('stroke-width', 1)
                     .attr('stroke', 'rgba(0,0,0, .7)')
-                    .on('mousemove', function(d) {
-                        if(this.mousemove) {
-                            this.setAttribute('fill', aCol);
-                            d.alive = 1;
-                        }
-                    })
+                    .on('mousemove', (d,i) => { if(this.mousedown) this.rise(i)} )
                     .on('click', function(d) {
                         this.setAttribute('fill', ( this.getAttribute('fill') == aCol? sCol : aCol));
                         d.alive = !d.alive;
@@ -78,8 +74,6 @@ var LifeGame = {
     },
     
     setDynamicStyles: function() {
-        
-        console.log(this.field);
         
         this.cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / this.N);
         d3.select('#field')
@@ -116,7 +110,7 @@ var LifeGame = {
         return coord;
     },
 
-    resetCheck = function() {
+    resetCheck: function() {
         this.field.forEach( function(item) {
             item.checked = false;  
         });
@@ -127,8 +121,8 @@ var LifeGame = {
 //TODO
 //вынести логику расчетов в отдельную функцию
 //добавить функцию очистки всего поля
-//не работает "покраска" - проблема с this
-//setInterval
+//перевести функцию update в namespace
+//SetInterval
 
 
 /*EVENTS*/
