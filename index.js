@@ -24,16 +24,13 @@ var field = [];
 var dir = [];
 
 //TODO
-//setDynamicStyles работает странно
-//вынести перерисовку в отдельную функцию
 //вынести логику расчетов в отдельную функцию
-//баг - последовательный проход по массиву клеток может изменять результат (?)
+//добавить функцию очистки всего поля
+//создать нэймспейс
 
 /*EVENTS*/
 window.addEventListener('load', function() {
-    
-    setDynamicStyles(); //почему вначале?
-    
+        
     initField();
     
     initDirectionsArray();
@@ -49,10 +46,10 @@ window.addEventListener('load', function() {
         .selectAll("rect")
           .data(field)
         .enter().append("rect")
-          .attr('x', function(d) { return d.coord[1] * cellSize })
+          /*.attr('x', function(d) { return d.coord[1] * cellSize })
           .attr('y', function(d) { return d.coord[0] * cellSize })
           .attr('width', cellSize)
-          .attr('height', cellSize)
+          .attr('height', cellSize)*/
           .attr('class', 'panel')
           .attr('fill', stockColor)
             .attr('id', function(d,i){ return i})
@@ -68,7 +65,8 @@ window.addEventListener('load', function() {
                 this.setAttribute('fill', ( this.getAttribute('fill') == activeColor? stockColor : activeColor));
                 d.alive = !d.alive;
             })
-        .exit().remove();      
+        .exit().remove();
+    setDynamicStyles();
 });
 window.addEventListener('resize', function() {
     setDynamicStyles();
