@@ -1,75 +1,150 @@
-/*Количество клеток*/
-let N = 6,
-/*Размер клетки в пикселях*/
-    cellSize,
-/**/
-    i = 0,
-    j = 0,
-/*Переменная для отслеживания нажатой мыши*/
-    mousedown = false,
-/*Цвет 'мёртвой' клетки*/
-    stockColor = 'rgba(0,0,0,.1)',
-/*Цвет 'живой' клетки*/
-    activeColor = 'rgba(0,0,0,.9)',
-/*Точка для просмотра соседей*/    
-    currentPoint = [0,0],
-/*Объект для просмотра соседей*/
-    currentCell = {},
-/*Количество живых соседей*/
-    living = 0;
+var LifeGame = {
+    /*Количество клеток*/
+    N: 6,
+    /*Размер клетки в пикселях*/
+    cellSize: 0,
+    /*Переменная для отслеживания нажатой мыши*/
+    mousedown: false,
+    /*Цвет 'мёртвой' клетки*/
+    stockColor: 'rgba(0,0,0,.1)',
+    /*Цвет 'живой' клетки*/
+    activeColor: 'rgba(0,0,0,.9)',
+    /*Точка для просмотра соседей*/    
+    currentPoint: [0,0],
+    /*Объект для просмотра соседей*/
+    currentCell: {},
+    /*Количество живых соседей*/
+    living: 0,
     
-/*Массив, содержащий всё поле*/
-var field = [];
-/*Массив для просмотров соседей*/
-var dir = [];
+    /*Массив, содержащий всё поле*/
+    field: [],
+    /*Массив для просмотров соседей*/
+    dir: [],
+    
+    /*Создание и заполнени поля*/
+    initField: function() {
+        let i = 0, j = 0;
+        let point;
+        for( i = 0; i < this.N; i++) {
+            for(j = 0; j < this.N; j++) {
+                point = new Object();
+                point.coord = [];
+                point.alive = 0;
+                point.checked = false;
+                point.coord.push(i);
+                point.coord.push(j);
+                this.field.push(point);
+            }
+        }
+    },
+    
+    /*Инициализация массива направлений*/
+    initDirectionsArray: function() {
+        let i = 0, j = 0;
+        for (i = -1; i < 2; i++) {
+            for( j = -1; j < 2; j++) {
+                if( !( i == 0 && j == 0 )) this.dir.push( [i, j] );
+            }
+        }
+    },
+    
+    /*создание dom-элементов*/
+    createDOM: function() {
+        let aCol = this.activeColor;
+        let sCol = this.stockColor;
+        
+        d3.select("#field")
+            .on('mousedown', () => this.mousedown = true )
+            .on('mouseup', () => this.mousedown = false )
+            .selectAll("rect")
+                .data(this.field)
+                .enter().append("rect")
+                    .attr('class', 'panel')
+                    .attr('fill', sCol)
+                    .attr('id', (d, i) => i)
+                    .attr('stroke-width', 1)
+                    .attr('stroke', 'rgba(0,0,0, .7)')
+                    .on('mousemove', function(d) {
+                        if(this.mousemove) {
+                            this.setAttribute('fill', aCol);
+                            d.alive = 1;
+                        }
+                    })
+                    .on('click', function(d) {
+                        this.setAttribute('fill', ( this.getAttribute('fill') == aCol? sCol : aCol));
+                        d.alive = !d.alive;
+                    })
+                .exit().remove();
+    },
+    
+    setDynamicStyles: function() {
+        
+        console.log(this.field);
+        
+        this.cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / this.N);
+        d3.select('#field')
+            .attr('width', this.cellSize * this.N)
+            .attr('height', this.cellSize * this.N)
+            .selectAll('rect')
+                .data(this.field)
+                .attr('x', (d) => d.coord[1] * this.cellSize )
+                .attr('y', (d) => d.coord[0] * this.cellSize )
+                .attr('width', this.cellSize)
+                .attr('height', this.cellSize);
+    },
+    
+    checkMouseDown: () => this.mousedown,
+
+    /*Возродить - красит в активный цвет*/
+    rise: function(id) {
+        this.field[id].alive = 1;
+        document.getElementById(id).setAttribute('fill', this.activeColor);
+    },
+
+    /*Умереть - красит в стоковый цвет*/
+    die: function(id) {
+        this.field[id].alive = 0;
+        document.getElementById(id).setAttribute('fill', this.stockColor);
+    },
+    
+    coordToId: (i,j) => i * this.N + j,
+    
+    /*Принимает одну координату*/
+    checkCoord: function(coord) {
+        coord = (coord > -1)? coord : this.N - 2;
+        coord = (coord < this.N)? coord : 1;
+        return coord;
+    },
+
+    resetCheck = function() {
+        this.field.forEach( function(item) {
+            item.checked = false;  
+        });
+    }
+
+}
 
 //TODO
 //вынести логику расчетов в отдельную функцию
 //добавить функцию очистки всего поля
-//создать нэймспейс
+//не работает "покраска" - проблема с this
+//setInterval
+
 
 /*EVENTS*/
 window.addEventListener('load', function() {
         
-    initField();
+    LifeGame.initField();
     
-    initDirectionsArray();
+    LifeGame.initDirectionsArray();
     
-    /*создание dom-элементов*/
-    d3.select("#field")
-        .on('mousedown', function() {
-            mousedown = true;
-        })
-        .on('mouseup', function() {
-            mousedown = false;
-        })
-        .selectAll("rect")
-          .data(field)
-        .enter().append("rect")
-          /*.attr('x', function(d) { return d.coord[1] * cellSize })
-          .attr('y', function(d) { return d.coord[0] * cellSize })
-          .attr('width', cellSize)
-          .attr('height', cellSize)*/
-          .attr('class', 'panel')
-          .attr('fill', stockColor)
-            .attr('id', function(d,i){ return i})
-            .attr('stroke-width', 1)
-            .attr('stroke', 'rgba(0,0,0, .7)')
-            .on('mousemove', function(d) {
-                if(mousedown) {
-                    this.setAttribute('fill', activeColor);
-                    d.alive = 1;
-                }
-            })
-            .on('click', function(d) {
-                this.setAttribute('fill', ( this.getAttribute('fill') == activeColor? stockColor : activeColor));
-                d.alive = !d.alive;
-            })
-        .exit().remove();
-    setDynamicStyles();
+    LifeGame.createDOM();
+    
+    LifeGame.setDynamicStyles();
+    
 });
 window.addEventListener('resize', function() {
-    setDynamicStyles();
+    LifeGame.setDynamicStyles();
 });
 
 var update = function() {    
@@ -111,29 +186,4 @@ var update = function() {
         
     /*Цикл по всем клеткам поля*/
     });   
-}
-
-/*Создание и заполнени поля*/
-var initField = function() {
-    let point;
-    for( i = 0; i < N; i++) {
-        for(j = 0; j < N; j++) {
-            point = new Object();
-            point.coord = [];
-            point.alive = 0;
-            point.checked = false;
-            point.coord.push(i);
-            point.coord.push(j);
-            field.push(point);
-        }
-    }
-}
-
-/*Инициализация массива направлений*/
-var initDirectionsArray = function() {
-    for (i = -1; i < 2; i++) {
-        for( j = -1; j < 2; j++) {
-            if( !( i == 0 && j == 0 )) dir.push( [i, j] );
-        }
-    }
 }
