@@ -41,6 +41,7 @@ var LifeGame = {
     
     /*Создание и заполнени поля*/
     initField: function() {
+        this.field = [];
         let i = 0, j = 0;
         let point;
         for( i = 0; i < this.N; i++) {
@@ -49,7 +50,6 @@ var LifeGame = {
                 this.field.push(point);
             }
         }
-        console.log(this.field);
     },
     
     /*Инициализация массива направлений*/
@@ -89,7 +89,6 @@ var LifeGame = {
     
     setDynamicStyles: function() {
         let cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / this.N);
-        console.log(this);
         d3.select('#field')
             .attr('width', cellSize * this.N)
             .attr('height', cellSize * this.N)
@@ -101,10 +100,25 @@ var LifeGame = {
                 .attr('height', cellSize);
     },
     
+    /*Добавляет возможность полю подстраиваться под размеры экрана*/
     activateResponsive: function() {
         window.addEventListener('resize', function() {
             LifeGame.setDynamicStyles();
         });  
+    },
+    
+    /*Очищает всё поле - убивает все клетки*/
+    clear: function() {
+        for(let i = 0; i < Math.pow(this.N,2); i++) {
+            this.die(i);
+        }
+    },
+    
+    rebuild: function(newN) {
+        this.N = newN;
+        this.initField();
+        this.createDOM();
+        this.setDynamicStyles();
     },
 
     /*Возродить - красит в активный цвет*/
@@ -184,16 +198,18 @@ var LifeGame = {
 
 //TODO
 //тестировка - возможно работает неверно
-//добавить функцию очистки всего поля
 //SetInterval
-//функция перестройки с заданным новым N
+//функция перестройки с заданным новым N - не работает exit.remove
 //установка меню и привязка событий автоматически в своём инкапсулированном методе
 
 
 /*EVENTS*/
 window.addEventListener('load', function() {
-    LifeGame.init(5);
+    LifeGame.init(8);
 });
 document.getElementById('button-start').addEventListener('click', function() {
     LifeGame.update();
-})
+});
+document.getElementById('buton-clear').addEventListener('click', function() {
+    LifeGame.clear();
+});
