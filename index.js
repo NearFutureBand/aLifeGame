@@ -1,6 +1,6 @@
 var LifeGame = {
     /*Количество клеток*/
-    N: 6,
+    N: 0,
     /*Размер клетки в пикселях*/
     cellSize: 0,
     /*Переменная для отслеживания нажатой мыши*/
@@ -9,12 +9,6 @@ var LifeGame = {
     stockColor: 'rgba(0,0,0,.1)',
     /*Цвет 'живой' клетки*/
     activeColor: 'rgba(0,0,0,.9)',
-    /*Точка для просмотра соседей*/    
-    currentPoint: [0,0],
-    /*Объект для просмотра соседей*/
-    currentCell: {},
-    /*Количество живых соседей*/
-    living: 0,
     
     /*Массив, содержащий всё поле*/
     field: [],
@@ -22,7 +16,8 @@ var LifeGame = {
     dir: [],
     
     /*Создание и заполнени поля*/
-    initField: function() {
+    initField: function( N) {
+        this.N = N;
         let i = 0, j = 0;
         let point;
         for( i = 0; i < this.N; i++) {
@@ -101,7 +96,10 @@ var LifeGame = {
         document.getElementById(id).setAttribute('fill', this.stockColor);
     },
     
-    coordToId: (i,j) => i * this.N + j,
+    //coordToId: (i, j) => i * this.N + j,
+    coordToId: function(i, j) {
+        return i * this.N + j;  
+    },
     
     /*Принимает одну координату*/
     checkCoord: function(coord) {
@@ -114,21 +112,68 @@ var LifeGame = {
         this.field.forEach( function(item) {
             item.checked = false;  
         });
+    },
+    
+    /*один шаг игры*/
+    update: function() {
+        /*Точка для просмотра соседей*/    
+        let currentPoint = [0,0],
+        /*Объект для просмотра соседей*/
+        currentCell = {},
+        /*Количество живых соседей*/
+        living = 0,
+        /*Индексы для циклов*/
+        i = 0, j = 0, k = 0;
+        
+        /*Цикл по всем клеткам поля*/
+        for(i = 0 ; i < Math.pow(this.N, 2); i++) {
+            
+            living = 0;
+            
+            /*цикл по всем направлениям*/
+            for(j = 0; j < 8; j++) {
+                currentPoint = [0,0];
+                currentCell = {};
+                
+                /*Цикл по двум координатам*/
+                for(k = 0; k < 2; k++) {
+                    currentPoint[k] = this.field[i].coord[k] + this.dir[j][k];
+                }
+                currentPoint = [ this.checkCoord(currentPoint[0]), this.checkCoord(currentPoint[1]) ];
+                currentCell = this.field[ this.coordToId(currentPoint[0], currentPoint[1]) ];
+                if( currentCell.checked == false) {
+                    living += currentCell.alive;
+                    currentCell.checked = true;
+                }
+                
+            }/*цикл по всем направлениям*/
+            
+            if( this.field[i].alive == 1 && ( living == 2 || living == 3) ||
+                this.field[i].alive == 0 && living == 3
+            ) {
+                this.rise( this.coordToId( this.field[i].coord[0], this.field[i].coord[1] ) );
+            } else {
+                this.die( this.coordToId( this.field[i].coord[0], this.field[i].coord[1] ) );
+            }
+        
+            this.resetCheck();
+            
+        }/*Цикл по всем клеткам поля*/        
     }
-
 }
 
 //TODO
-//вынести логику расчетов в отдельную функцию
+//currentPoint и currentCell можно сделать одним объектом типа Point
+//создать класс Point
 //добавить функцию очистки всего поля
-//перевести функцию update в namespace
 //SetInterval
+//сделать единую функцию запуска с параметрами
 
 
 /*EVENTS*/
 window.addEventListener('load', function() {
         
-    LifeGame.initField();
+    LifeGame.initField(6);
     
     LifeGame.initDirectionsArray();
     
@@ -140,44 +185,6 @@ window.addEventListener('load', function() {
 window.addEventListener('resize', function() {
     LifeGame.setDynamicStyles();
 });
-
-var update = function() {    
-    
-    /*Цикл по всем клеткам поля*/
-    field.forEach( function(cell) {
-        
-        living = 0;
-        /*цикл по всем направлениям*/
-        dir.forEach( function(d) {
-            currentPoint = [0,0];
-            currentCell = {};
-            
-            /*Цикл по двум координатам*/
-            cell.coord.forEach( function(c, it) {
-                currentPoint[it] = cell.coord[it] + d[it];
-            });
-            
-            currentPoint = [ checkCoord(currentPoint[0]), checkCoord(currentPoint[1]) ];
-            currentCell = field[ coordToId(currentPoint[0], currentPoint[1]) ];
-            if( currentCell.checked == false) {
-                living += currentCell.alive;
-                currentCell.checked = true;
-            }
-            
-        /*цикл по всем направлениям*/
-        });
-        
-        //console.log(living);
-        if( cell.alive == 1 && ( living == 2 || living == 3) ||
-            cell.alive == 0 && living == 3
-        ) {
-            rise( coordToId(cell.coord[0], cell.coord[1]));
-        } else {
-            die( coordToId(cell.coord[0], cell.coord[1]));
-        }
-        
-        resetCheck();
-        
-    /*Цикл по всем клеткам поля*/
-    });   
-}
+document.getElementById('button-start').addEventListener('click', function() {
+    LifeGame.update();
+})
