@@ -1,8 +1,23 @@
+class Point {
+    constructor(x,y) {
+        this.coord = [x,y];
+        this.alive = 0;
+        this.checked = false;
+    }
+    clear() {
+        this.coord = [0,0];
+        this.alive = 0;
+        this.checked = false;
+    }
+    checkCoord() {
+        this.coord[0] = LifeGame.checkCoord(this.coord[0]);
+        this.coord[1] = LifeGame.checkCoord(this.coord[1]);
+    }
+}
+
 var LifeGame = {
     /*Количество клеток*/
     N: 0,
-    /*Размер клетки в пикселях*/
-    cellSize: 0,
     /*Переменная для отслеживания нажатой мыши*/
     mousedown: false,
     /*Цвет 'мёртвой' клетки*/
@@ -15,22 +30,26 @@ var LifeGame = {
     /*Массив для просмотров соседей*/
     dir: [],
     
-    /*Создание и заполнени поля*/
-    initField: function( N) {
+    init: function(N) {
         this.N = N;
+        this.initField();
+        this.initDirectionsArray();
+        this.createDOM();
+        this.setDynamicStyles();
+        this.activateResponsive();
+    },
+    
+    /*Создание и заполнени поля*/
+    initField: function() {
         let i = 0, j = 0;
         let point;
         for( i = 0; i < this.N; i++) {
             for(j = 0; j < this.N; j++) {
-                point = new Object();
-                point.coord = [];
-                point.alive = 0;
-                point.checked = false;
-                point.coord.push(i);
-                point.coord.push(j);
+                point = new Point(i,j);
                 this.field.push(point);
             }
         }
+        console.log(this.field);
     },
     
     /*Инициализация массива направлений*/
@@ -69,20 +88,24 @@ var LifeGame = {
     },
     
     setDynamicStyles: function() {
-        
-        this.cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / this.N);
+        let cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / this.N);
+        console.log(this);
         d3.select('#field')
-            .attr('width', this.cellSize * this.N)
-            .attr('height', this.cellSize * this.N)
+            .attr('width', cellSize * this.N)
+            .attr('height', cellSize * this.N)
             .selectAll('rect')
                 .data(this.field)
-                .attr('x', (d) => d.coord[1] * this.cellSize )
-                .attr('y', (d) => d.coord[0] * this.cellSize )
-                .attr('width', this.cellSize)
-                .attr('height', this.cellSize);
+                .attr('x', (d) => d.coord[1] * cellSize )
+                .attr('y', (d) => d.coord[0] * cellSize )
+                .attr('width', cellSize)
+                .attr('height', cellSize);
     },
     
-    checkMouseDown: () => this.mousedown,
+    activateResponsive: function() {
+        window.addEventListener('resize', function() {
+            LifeGame.setDynamicStyles();
+        });  
+    },
 
     /*Возродить - красит в активный цвет*/
     rise: function(id) {
@@ -116,10 +139,8 @@ var LifeGame = {
     
     /*один шаг игры*/
     update: function() {
-        /*Точка для просмотра соседей*/    
-        let currentPoint = [0,0],
-        /*Объект для просмотра соседей*/
-        currentCell = {},
+        /*Клетка для просмотра соседей*/    
+        let currentPoint = new Point(0,0),
         /*Количество живых соседей*/
         living = 0,
         /*Индексы для циклов*/
@@ -132,18 +153,17 @@ var LifeGame = {
             
             /*цикл по всем направлениям*/
             for(j = 0; j < 8; j++) {
-                currentPoint = [0,0];
-                currentCell = {};
+                currentPoint.clear();
                 
                 /*Цикл по двум координатам*/
                 for(k = 0; k < 2; k++) {
-                    currentPoint[k] = this.field[i].coord[k] + this.dir[j][k];
+                    currentPoint.coord[k] = this.field[i].coord[k] + this.dir[j][k];
                 }
-                currentPoint = [ this.checkCoord(currentPoint[0]), this.checkCoord(currentPoint[1]) ];
-                currentCell = this.field[ this.coordToId(currentPoint[0], currentPoint[1]) ];
-                if( currentCell.checked == false) {
-                    living += currentCell.alive;
-                    currentCell.checked = true;
+                currentPoint.checkCoord();
+                currentPoint = this.field[ this.coordToId(currentPoint.coord[0], currentPoint.coord[1]) ];
+                if( currentPoint.checked == false) {
+                    living += currentPoint.alive;
+                    currentPoint.checked = true;
                 }
                 
             }/*цикл по всем направлениям*/
@@ -163,27 +183,16 @@ var LifeGame = {
 }
 
 //TODO
-//currentPoint и currentCell можно сделать одним объектом типа Point
-//создать класс Point
+//тестировка - возможно работает неверно
 //добавить функцию очистки всего поля
 //SetInterval
-//сделать единую функцию запуска с параметрами
+//функция перестройки с заданным новым N
+//установка меню и привязка событий автоматически в своём инкапсулированном методе
 
 
 /*EVENTS*/
 window.addEventListener('load', function() {
-        
-    LifeGame.initField(6);
-    
-    LifeGame.initDirectionsArray();
-    
-    LifeGame.createDOM();
-    
-    LifeGame.setDynamicStyles();
-    
-});
-window.addEventListener('resize', function() {
-    LifeGame.setDynamicStyles();
+    LifeGame.init(5);
 });
 document.getElementById('button-start').addEventListener('click', function() {
     LifeGame.update();
