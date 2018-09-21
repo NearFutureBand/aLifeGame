@@ -2,16 +2,19 @@ class Point {
     constructor(x,y) {
         this.coord = [x,y];
         this.alive = 0;
-        this.checked = false;
+        this.checked = Number(0);
     }
     clear() {
         this.coord = [0,0];
         this.alive = 0;
-        this.checked = false;
+        this.checked = Number(0);
     }
     checkCoord() {
         this.coord[0] = LifeGame.checkCoord(this.coord[0]);
         this.coord[1] = LifeGame.checkCoord(this.coord[1]);
+    }
+    makeSeen() {
+        this.checked = 1;
     }
 }
 
@@ -82,7 +85,7 @@ var LifeGame = {
                     .on('mousemove', (d,i) => { if(this.mousedown) this.rise(i)} )
                     .on('click', function(d) {
                         this.setAttribute('fill', ( this.getAttribute('fill') == aCol? sCol : aCol));
-                        d.alive = !d.alive;
+                        d.alive = (1 - d.alive);
                     })
                 .exit().remove();
     },
@@ -144,53 +147,59 @@ var LifeGame = {
         coord = (coord < this.N)? coord : 1;
         return coord;
     },
-
-    resetCheck: function() {
-        this.field.forEach( function(item) {
-            item.checked = false;  
-        });
-    },
     
     /*один шаг игры*/
     update: function() {
         /*Клетка для просмотра соседей*/    
         let currentPoint = new Point(0,0),
+        /*ID просматриваемой клетки*/
+        index = 0,
         /*Количество живых соседей*/
         living = 0,
         /*Индексы для циклов*/
-        i = 0, j = 0, k = 0;
-        
+        i = 0, j = 0, k = 0,
+        /*Резервное поле для расчётов*/
+        tmpField = this.field;
+        console.log(tmpField);
         /*Цикл по всем клеткам поля*/
-        for(i = 0 ; i < Math.pow(this.N, 2); i++) {
-            
+        //for(i = 0 ; i < Math.pow(this.N, 2); i++) {
+        for(i = 4; i < 5; i++) {    
             living = 0;
-            
             /*цикл по всем направлениям*/
             for(j = 0; j < 8; j++) {
                 currentPoint.clear();
                 
                 /*Цикл по двум координатам*/
                 for(k = 0; k < 2; k++) {
-                    currentPoint.coord[k] = this.field[i].coord[k] + this.dir[j][k];
+                    currentPoint.coord[k] = tmpField[i].coord[k] + this.dir[j][k];
                 }
                 currentPoint.checkCoord();
-                currentPoint = this.field[ this.coordToId(currentPoint.coord[0], currentPoint.coord[1]) ];
-                if( currentPoint.checked == false) {
-                    living += currentPoint.alive;
-                    currentPoint.checked = true;
+                index = this.coordToId(currentPoint.coord[0], currentPoint.coord[1]);
+                console.log(index);
+                
+                if( this.field[index].checked == 0) {
+                    living += tmpField[index].alive;
+                    this.field[index].checked = 1;
+                    console.log(this.field[ index ] );
+                    console.log(this.field);
                 }
                 
             }/*цикл по всем направлениям*/
-            
-            if( this.field[i].alive == 1 && ( living == 2 || living == 3) ||
-                this.field[i].alive == 0 && living == 3
+            console.log(tmpField);
+            console.log(living);
+            if( tmpField[i].alive == 1 && ( living == 2 || living == 3) ||
+                tmpField[i].alive == 0 && living == 3
             ) {
-                this.rise( this.coordToId( this.field[i].coord[0], this.field[i].coord[1] ) );
+                this.rise(i);
+                console.log(i, 'rise');
             } else {
-                this.die( this.coordToId( this.field[i].coord[0], this.field[i].coord[1] ) );
+                this.die(i);
+                console.log(i, 'die');
             }
-        
-            this.resetCheck();
+            
+            tmpField.forEach( function(item) {
+                item.checked = 0;  
+            });
             
         }/*Цикл по всем клеткам поля*/        
     }
@@ -198,6 +207,8 @@ var LifeGame = {
 
 //TODO
 //тестировка - возможно работает неверно
+
+//прием с checked свойством не работает
 //SetInterval
 //функция перестройки с заданным новым N - не работает exit.remove
 //установка меню и привязка событий автоматически в своём инкапсулированном методе
@@ -205,7 +216,7 @@ var LifeGame = {
 
 /*EVENTS*/
 window.addEventListener('load', function() {
-    LifeGame.init(8);
+    LifeGame.init(3);
 });
 document.getElementById('button-start').addEventListener('click', function() {
     LifeGame.update();

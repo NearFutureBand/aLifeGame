@@ -24,6 +24,10 @@
             padding: 1vh;
             box-shadow: 1px 1px 5px rgba(0,0,0,.3);
             text-align: center;
+            display: flex;
+            flex-flow: column;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .button-block h5{
@@ -34,6 +38,12 @@
             text-align: center;
             margin: 3%;
         }
+        .button-block .frm-set-field-size input {
+            width: 100%;
+        }
+        .button-block .frm-set-field-size .input-number {
+            margin-bottom: 3%;
+        }
     </style>
   </head>
   <body>
@@ -41,7 +51,11 @@
     
     <div class="button-block">
        <h5>Menu</h5>
-        <button class="btn btn-success" id="button-start">Start</button><br>
+       <form class="frm-set-field-size">
+           <input type="text" name="dimention" class="input-number"><br>
+           <input type="submit" class="btn btn-danger" value="Build" id="button-build">
+       </form>
+        <button class="btn btn-success" id="button-start">Start</button>
         <button class="btn btn-primary" id="buton-clear">Clear</button>
     </div>
     
