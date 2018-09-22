@@ -78,7 +78,7 @@ var LifeGame = {
     },
     
     setDynamicStyles: function() {
-        let cellSize = Math.floor( ( ( innerHeight <= innerWidth )? innerHeight : innerHeight ) / this.N);
+        let cellSize = Math.floor( Math.min(innerHeight, innerWidth) / this.N);
         d3.select('#field')
             .attr('width', cellSize * this.N)
             .attr('height', cellSize * this.N)
@@ -92,9 +92,10 @@ var LifeGame = {
     
     /*Добавляет возможность полю подстраиваться под размеры экрана*/
     activateResponsive: function() {
+        let context = this;
         window.addEventListener('resize', function() {
-            LifeGame.setDynamicStyles();
-        });  
+            context.setDynamicStyles();
+        });
     },
     
     /*Очищает всё поле - убивает все клетки*/
