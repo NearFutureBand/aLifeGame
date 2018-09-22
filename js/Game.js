@@ -7,11 +7,15 @@ var LifeGame = {
     stockColor: 'rgba(0,0,0,.1)',
     /*Цвет 'живой' клетки*/
     activeColor: 'rgba(0,0,0,.9)',
-    
     /*Массив, содержащий всё поле*/
     field: [],
-    /*Массив для просмотров соседей*/
+    /*Массив направлений для просмотра соседей*/
     dir: [],
+    /*Для хранения SetInterval*/
+    interval: null,
+    /**/
+    step: 0,
+    maxStep: 100,
     
     init: function(N) {
         this.N = N;
@@ -146,16 +150,14 @@ var LifeGame = {
         /*Массив уже просмотренных живых точек*/
         seen = [];
         
-        /*Цикл по всем клеткам поля*/
-        for(i = 0 ; i < Math.pow(this.N, 2); i++) {
+        for(i = 0 ; i < Math.pow(this.N, 2); i++) { /*Цикл по всем клеткам поля*/
             seen = [];
             living = 0;
-            /*цикл по всем направлениям*/
-            for(j = 0; j < 8; j++) {
+            
+            for(j = 0; j < 8; j++) { /*цикл по всем направлениям*/
                 currentPoint.clear();
                 
-                /*Цикл по двум координатам*/
-                for(k = 0; k < 2; k++) {
+                for(k = 0; k < 2; k++) { /*Цикл по двум координатам*/
                     currentPoint.coord[k] = tmpField[i].coord[k] + this.dir[j][k];
                 }
                 currentPoint.checkCoord();
@@ -166,7 +168,7 @@ var LifeGame = {
                     seen.push(index);
                 }
                 
-            }/*цикл по всем направлениям*/
+            } /*цикл по всем направлениям*/
             if( tmpField[i].alive == 1 && ( living == 2 || living == 3) ||
                 tmpField[i].alive == 0 && living == 3
             ) {
@@ -174,7 +176,16 @@ var LifeGame = {
             } else {
                 this.die(i);
             }
-        }/*Цикл по всем клеткам поля*/        
+        } /*Цикл по всем клеткам поля*/        
+    },
+    
+    game: function() {
+        if( LifeGame.step >= LifeGame.maxStep) {
+            clearInterval(LifeGame.interval);   
+            LifeGame.interval = null;
+        }
+        LifeGame.step += 1;
+        LifeGame.update();
     },
     
     setMenu: function() {
@@ -184,14 +195,18 @@ var LifeGame = {
         document.querySelector('body').appendChild(menu);
         
         document.getElementById('button-start').addEventListener('click', function() {
-            LifeGame.update();
+            LifeGame.step = 0;
+            LifeGame.interval = setInterval( LifeGame.game, 1000/60);
         });
         document.getElementById('buton-clear').addEventListener('click', function() {
+            if( LifeGame.interval != null) {
+                clearInterval(LifeGame.interval);   
+                LifeGame.interval = null;
+            }
             LifeGame.clear();
         });
         document.getElementById('button-build').addEventListener('click', function() {
             LifeGame.rebuild( parseInt( document.getElementById('input-dimention').value ) );    
         });
-        
     }
 }

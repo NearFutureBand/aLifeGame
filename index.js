@@ -4,4 +4,4 @@
 //SetInterval
 
 
-LifeGame.init(5);
+LifeGame.init(70);
