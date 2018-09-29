@@ -40,7 +40,7 @@ The animation could be stopped by pressing the button "Clear". The field will be
 
 * Some threads to process huge fields
 * Different dimentions for width and height
-* More correct condition of 
+* More correct condition of stopping the animation
 
 ## Developers
 
