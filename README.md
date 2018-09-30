@@ -44,7 +44,7 @@ The animation could be stopped by pressing the button "Clear". The field will be
 
 ## Developers
 
-Paval Belyakov (Paul White)
+Pavel Belyakov (Paul White)
 * [GitHub](https://github.com/NearFutureBand)
 * [LinkedIn](https://www.linkedin.com/in/%D0%BF%D0%B0%D0%B2%D0%B5%D0%BB-%D0%B1%D0%B5%D0%BB%D1%8F%D0%BA%D0%BE%D0%B2-035b1b162/)
 * Telegram - @paulWhite43
