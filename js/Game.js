@@ -16,7 +16,7 @@ class LifeGame {
         this.interval = null;
         /*Information about process of animation*/
         this.step = 0;
-        this.maxStep = 0;
+        this.maxStep = 100;
     }
     
     init(N) {
@@ -151,12 +151,13 @@ class LifeGame {
         living = 0,
         /*Индексы для циклов*/
         i = 0, j = 0, k = 0,
-        /*Резервное поле для расчётов*/
-        tmpField = this.field.slice(),
         /*Объект содержащий уже просмотренные живые точки*/
         seen = {};
+        /*Резервное поле для расчётов*/
+        let tmpField = JSON.parse( JSON.stringify( this.field ));
         
         for(i = 0 ; i < this.N * this.N; i++) { /*Цикл по всем клеткам поля*/
+            
             seen = {};
             living = 0;
             
@@ -183,7 +184,7 @@ class LifeGame {
             } else {
                 this.die(i);
             }
-        } /*Цикл по всем клеткам поля*/     
+        } /*Цикл по всем клеткам поля*/
     }
     
     setMenu() {
@@ -213,7 +214,7 @@ class LifeGame {
                 this.step += 1;
                 this.update();
                 
-            }, 1000);
+            }, 1000/60);
         });
         
         document.getElementById('button-clear').addEventListener('click', () => {
@@ -227,7 +228,5 @@ class LifeGame {
         document.getElementById('button-build').addEventListener('click', () => {
             this.rebuild( parseInt( document.getElementById('input-dimention').value ) );    
         });
-    }
-    
-    
+    } 
 }
