@@ -10,8 +10,4 @@ class Point {
         this.coord = [0,0];
         this.alive = 0;
     }
-    checkCoord() {
-        this.coord[0] = LifeGame.checkCoord(this.coord[0]);
-        this.coord[1] = LifeGame.checkCoord(this.coord[1]);
-    }
 }
