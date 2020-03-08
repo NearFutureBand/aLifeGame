@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
 const buildMatrix = (rows, cols) => {
@@ -30,6 +30,7 @@ const MainScreen = ({
   const [ matrix, setMatrix ] = useState( buildMatrix(rows, cols) );
   const [ alive, setAlive ] = useState({ });
   const [ dir, setDiections ] = useState(initDirectionsArray());
+  const [ isAnimation, setAnimationState ] = useState(false);
 
   const onCellClick = (index) => {
     const nextAlive = {...alive};
@@ -85,20 +86,24 @@ const MainScreen = ({
         delete nextAlive[index];
       }
     }
-    setAlive(nextAlive);
-  }, [alive, rows, cols, checkCellCoordX, checkCellCoordY, matrix]);
+    console.log(nextAlive);
+    return nextAlive;
+  });
 
-  const run = () => {
-    let steps = 0;
-    interval = setInterval(() => {
-      console.log(steps);
-      oneFrame();
-      if ( steps > 100 ) {
-        clearInterval(interval);
-      }
-      steps++;
-    }, 2000);
-  }
+  useEffect(() => {
+    if (isAnimation) {
+      interval = setInterval(() => {
+        console.log(interval);
+        setAlive(oneFrame());
+      }, 2000);
+    }
+    else {
+      clearInterval(interval);
+    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [isAnimation]);
 
   return (
     <View style={styles.container}>
@@ -122,13 +127,14 @@ const MainScreen = ({
         <Text>{`W ${cols}`}</Text>
         <Text>{`H ${rows}`}</Text>
         <TouchableOpacity
-          onPress={run}
+          onPress={() => setAnimationState(true)}
           style={styles.controlButton}
         >
           <Text>S</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.controlButton}
+          onPress={() => setAnimationState(false)}
         >
           <Text>C</Text>
         </TouchableOpacity>
